@@ -17,3 +17,14 @@ nyc_transit_df = read_csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
 #clean names
 nyc_transit_df = janitor::clean_names(nyc_transit_df)
 ```
+```{r}
+# retain certain columns in df
+nyc_transit_df = nyc_transit_df %>% select(line, station_name, station_latitude, station_longitude, route1, route2, route3, route4, route5, route6, route7, route8, route9, route10, route11, entry, entrance_type, vending, ada) 
+```
+
+```{r}
+# recode entry variable from character to logical type
+nyc_transit_df$entry = ifelse(nyc_transit_df$entry=="YES", TRUE, FALSE)
+nyc_transit_df
+```
+
