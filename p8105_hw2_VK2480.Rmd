@@ -1,0 +1,19 @@
+---
+title: "Homework-2"
+output: github_document
+---
+
+## Library calls
+```{r}
+library(tidyverse)
+```
+
+
+## Data Import
+
+```{r}
+# read csv file
+nyc_transit_df = read_csv("NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+#clean names
+nyc_transit_df = janitor::clean_names(nyc_transit_df)
+```
