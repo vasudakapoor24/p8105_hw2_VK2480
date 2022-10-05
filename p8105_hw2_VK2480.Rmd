@@ -6,6 +6,7 @@ output: github_document
 ## Library calls
 ```{r}
 library(tidyverse)
+library(readxl)
 ```
 
 
@@ -57,10 +58,22 @@ mutate(prop = n/sum(n))
 
 ```{r}
 #Reformat data so that route number and route name are distinct variables.
-## DOUBT!!!
+nyc_transit_df$route8 <- as.character(nyc_transit_df$route8)
+nyc_transit_df$route9 <- as.character(nyc_transit_df$route9)
+nyc_transit_df$route10 <- as.character(nyc_transit_df$route10)
+nyc_transit_df$route11 <- as.character(nyc_transit_df$route11)
+
+nyc_transit_df = 
+  pivot_longer(
+    nyc_transit_df, 
+    route1:route11,
+    names_to = "route_number",
+    values_to = "route_name",
+    names_prefix = "route"
+  )
 #Q:How many distinct stations serve the A train? 
 nyc_transit_df %>%
-filter(route1 == "A") %>%
+filter(route_name == "A") %>%
 distinct(line, station_name) %>%
 count()
 #A: 60 distinct stations serve the A train. 
@@ -68,10 +81,70 @@ count()
 ```{r}
 #Q: Of the stations that serve the A train, how many are ADA compliant?
 nyc_transit_df %>%
-filter(route1 == "A") %>%
+filter(route_name == "A") %>%
 filter(ada == "TRUE") %>%
 distinct(line, station_name) %>%
 count()
 #A: Of the 60 stations that serve the A train, 17 are ADA compliant. 
 ```
+
+## Problem 2
+
+```{r}
+# Read data for Mr. Trash Wheel
+mr_trash_df = read_excel("trash_wheel_data.xlsx", sheet = 1, range = cell_cols("A:N"))
+# clean names
+mr_trash_df = janitor::clean_names(mr_trash_df)
+#remove any rows without dumpster-specific data
+mr_trash_df = mr_trash_df %>%
+  filter(!is.na(dumpster))
+#round number of sports balls to the nearest integer and converts the result to an integer variable
+mr_trash_df$sports_balls <- round(mr_trash_df$sports_balls)
+mr_trash_df$sports_balls <- as.integer(mr_trash_df$sports_balls)
+#add new variable to indicate sheet number
+mr_trash_df$sheet <- "Mr. Trash Wheel"
+```
+
+```{r}
+# Read data for Professor Trash Wheel
+prof_trash_df = read_excel("trash_wheel_data.xlsx", sheet = 2, range = cell_cols("A:M"))
+# clean names
+prof_trash_df = janitor::clean_names(prof_trash_df)
+#remove any rows without dumpster-specific data
+prof_trash_df = prof_trash_df %>%
+  filter(!is.na(dumpster))
+#round number of sports balls to the nearest integer and converts the result to an integer variable
+
+#^ DOUBT!!!
+
+#add new variable to indicate sheet number
+prof_trash_df$sheet <- "Professor Trash Wheel"
+
+#combine datasets
+prof_trash_df$year <- as.character(prof_trash_df$year)
+joint_trash_df <- full_join(mr_trash_df, prof_trash_df)
+
+```
+```{r}
+#Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
+
+#DO THIS!!!
+```
+
+```{r}
+#Q: What was the total weight of trash collected by Professor Trash Wheel?
+joint_trash_df %>% 
+  filter(sheet == "Professor Trash Wheel") %>%
+  summarise(total_weight = sum(weight_tons))
+#A: The total weight of trash collected by Professor Trash is 190.12 tons. 
+```
+```{r}
+#Q: What was the total number of sports balls collected by Mr. Trash Wheel in 2020?
+joint_trash_df %>% 
+  filter(sheet == "Mr. Trash Wheel" & year == 2020) %>%
+  summarise(total_balls = sum(sports_balls))
+#A: Mr. Trash Wheel collected a total of 856 sports balls in 2020. 
+```
+
+## Problem 3
 
