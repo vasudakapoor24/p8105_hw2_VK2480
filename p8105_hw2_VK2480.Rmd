@@ -222,6 +222,5 @@ pols_snp_joint = left_join(pols_month_df, snp_df)
 unemployment_df$year = as.character(unemployment_df$year)
 pols_snp_unemp_joint = left_join(pols_snp_joint, unemployment_df)
 ```
-#Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
 The pols_snp_unemp_joint dataset can be used to see if the U.S. economy is affected by whether Republicans or Democrats are in office. This dataset was created by joining three datsets: (1) pols_month_df, which contains information about the number of Democrats and Republicans in office, (2) snp_df, which contains information about the closing price of the stock market and, (3) unemployment_df, which contains information about the unemployment rates. The resulting dataset has `r ncol(pols_snp_unemp_joint)` columns and `r nrow(pols_snp_unemp_joint)` rows. Its observations range from `r pols_snp_unemp_joint$year[1]` to `r pols_snp_unemp_joint$year[822]`. It has important variables such as the number of Democrats/ Republicans in the senate, the closing price of the stock market and the unemployment rate. 
