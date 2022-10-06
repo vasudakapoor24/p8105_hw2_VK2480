@@ -3,11 +3,15 @@ title: "Homework-2"
 output: github_document
 ---
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+
 ## Library calls
 ```{r}
 library(tidyverse)
 library(readxl)
-library(lubridate)
 ```
 
 
@@ -26,11 +30,11 @@ nyc_transit_df = nyc_transit_df %>% select(line, station_name, station_latitude,
 
 ```{r}
 # recode entry variable from character to logical type
-nyc_transit_df$entry = ifelse(nyc_transit_df$entry =="YES", TRUE, FALSE)
+nyc_transit_df$entry = ifelse(nyc_transit_df$entry == "YES", TRUE, FALSE)
 ```
-```{r}
-#Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
-```
+
+The nyc_transit_df datset contains variables that provide information about the NYC transit system. Some key variables include the subway line, the station name and the routes that the line serves. In order to clean this dataset, I cleaned the variable names, subsetted some of the columns and converted the entry variable to logical type. This dataset is not tidy because the route name and route line variables can be further concatenated using the pivot_longer function. 
+
 
 ```{r}
 #Q: How many distinct stations are there? 
@@ -50,7 +54,7 @@ count()
 ```
 ```{r}
 #Q: What proportion of station entrances / exits without vending allow entrance?
-nyc_transit_df %>% 
+prop1 <- nyc_transit_df %>% 
 filter(vending == "YES") %>%
 count(entry) %>%
 mutate(prop = n/sum(n))
@@ -114,38 +118,32 @@ prof_trash_df = janitor::clean_names(prof_trash_df)
 #remove any rows without dumpster-specific data
 prof_trash_df = prof_trash_df %>%
   filter(!is.na(dumpster))
-#round number of sports balls to the nearest integer and converts the result to an integer variable
-
-#^ DOUBT!!!
 
 #add new variable to indicate sheet number
 prof_trash_df$sheet <- "Professor Trash Wheel"
 
 #combine datasets
 prof_trash_df$year <- as.character(prof_trash_df$year)
-joint_trash_df <- full_join(mr_trash_df, prof_trash_df)
+joint_trash_df <- bind_rows(mr_trash_df, prof_trash_df)
 
 ```
-```{r}
-#Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
 
-#DO THIS!!!
-```
 
 ```{r}
 #Q: What was the total weight of trash collected by Professor Trash Wheel?
-joint_trash_df %>% 
+prof_trash_wt = joint_trash_df %>% 
   filter(sheet == "Professor Trash Wheel") %>%
   summarise(total_weight = sum(weight_tons))
 #A: The total weight of trash collected by Professor Trash is 190.12 tons. 
 ```
 ```{r}
 #Q: What was the total number of sports balls collected by Mr. Trash Wheel in 2020?
-joint_trash_df %>% 
+mr_sports_balls = joint_trash_df %>% 
   filter(sheet == "Mr. Trash Wheel" & year == 2020) %>%
   summarise(total_balls = sum(sports_balls))
 #A: Mr. Trash Wheel collected a total of 856 sports balls in 2020. 
 ```
+This dataset provides information about trash collected at various dumpster sites by Mr. Trash Wheel and Professor Trash Wheel. The dataset has `r ncol(joint_trash_df)` variables and `r nrow(joint_trash_df)` observations. It tells us about the weight of the trash collected on specific days and also provides information about the number of plastic bottles, glass bottles, cigarette butts, and other constituents of the trash. The total weight of trash collected by Professor Trash Wheel is `r prof_trash_wt` tons and Mr. Trash Wheel collected a total of `r mr_sports_balls` sports balls in 2020. 
 
 ## Problem 3
 ```{r}
@@ -180,7 +178,6 @@ snp_df = snp_df %>%
   separate(date, into = c("month", "day", "year"), sep = "/") %>%
   arrange(year, month) %>%
   select(-day) 
-##DOUBT^^(How to arrange according to year)
 
 #organize so that year and month are the leading columns
 snp_df <- snp_df[, c(2,1,3)]
@@ -220,8 +217,11 @@ unemployment_df = unemployment_df %>%
                         "nov" = "November", "dec" = "December"))
 ```
 ```{r}
+#combine datasets
 pols_snp_joint = left_join(pols_month_df, snp_df)
 unemployment_df$year = as.character(unemployment_df$year)
 pols_snp_unemp_joint = left_join(pols_snp_joint, unemployment_df)
 ```
+#Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
+The pols_snp_unemp_joint dataset can be used to see if the U.S. economy is affected by whether Republicans or Democrats are in office. This dataset was created by joining three datsets: (1) pols_month_df, which contains information about the number of Democrats and Republicans in office, (2) snp_df, which contains information about the closing price of the stock market and, (3) unemployment_df, which contains information about the unemployment rates. The resulting dataset has `r ncol(pols_snp_unemp_joint)` columns and `r nrow(pols_snp_unemp_joint)` rows. Its observations range from `r pols_snp_unemp_joint$year[1]` to `r pols_snp_unemp_joint$year[822]`. It has important variables such as the number of Democrats/ Republicans in the senate, the closing price of the stock market and the unemployment rate. 
